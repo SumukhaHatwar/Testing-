@@ -32,28 +32,37 @@ jobs:
       - name: Define Paths Array
         id: define_paths
         run: |
-          echo "cmspaths=src/items;src/platform;./Readme.md;FolderA" >> $GITHUB_ENV
-          echo "firstalertpaths=src/items;src/platform;./Readme.md;FolderB" >> $GITHUB_ENV
+          echo "cmspaths=src/items;src/platform;src" >> $GITHUB_ENV
+          echo "firstalertpaths=src/projects" >> $GITHUB_ENV
+          echo "prostorepath=src/prostore" >> $GITHUB_ENV
 
       - name: Check Modified Files
         id: check_files_cms
         run: |
           echo "=============== list modified files ==============="
+
           git diff --name-only HEAD^ HEAD > files.txt
-          Deploytocms='false'
+          Deploytoxmcloud='false'
           DeploytoFirstalert='false'
+          DeploytoProstore='false'
+
+          echo "========XMCLOUD file check=========="
+          
           while IFS= read -r file
           do
             echo "$file"
             IFS=';' read -r -a cmspaths_array <<< "$cmspaths"
             for path in "${cmspaths_array[@]}"; do
-              if [[ "$file" == $path/* || "$file" == $path ]]; then
-                Deploytocms='true'
+              if [[ "$file" == $path/* || "$file" == $path  ]]; then
+                Deploytoxmcloud='true'
                 break
               fi
             done
           done < files.txt
-          echo "Deploytocms=$Deploytocms" >> $GITHUB_ENV
+          echo "Deploytoxmcloud=$Deploytoxmcloud" >> $GITHUB_ENV
+
+          echo "========FirstAlert file check=========="
+
           while IFS= read -r file
           do
             IFS=';' read -r -a firstalertpaths_array <<< "$firstalertpaths"
@@ -66,7 +75,22 @@ jobs:
           done < files.txt
           echo "DeploytoFirstalert=$DeploytoFirstalert" >> $GITHUB_ENV
 
+          echo "========Prostore file check=========="
+
+          while IFS= read -r file
+          do
+            IFS=';' read -r -a firstalertpaths_array <<< "$prostorepath"
+            for path in "${firstalertpaths_array[@]}"; do
+              if [[ "$file" == $path/* || "$file" == $path ]]; then
+                DeploytoProstore='true'
+                break
+              fi
+            done
+          done < files.txt
+          echo "DeploytoProstore=$DeploytoProstore" >> $GITHUB_ENV
+
       - name: Output Deployment Decision
         run: |
-          echo "Deploytocms = ${{ env.Deploytocms }}"
+          echo "Deploytoxmcloud = ${{ env.Deploytoxmcloud }}"
           echo "DeploytoFirstalert = ${{ env.DeploytoFirstalert }}"
+          echo "DeploytoProstore = ${{ env.DeploytoProstore }}"
