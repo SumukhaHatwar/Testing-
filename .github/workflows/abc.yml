@@ -32,7 +32,7 @@ jobs:
       - name: Define Paths Array
         id: define_paths
         run: |
-          echo "cmspaths=src/items;src/platform;src" >> $GITHUB_ENV
+          echo "cmspaths=src/items;src/platform;src/*.json" >> $GITHUB_ENV
           echo "firstalertpaths=src/projects" >> $GITHUB_ENV
           echo "prostorepath=src/prostore" >> $GITHUB_ENV
 
