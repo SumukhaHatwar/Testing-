@@ -19,7 +19,7 @@ on:
         #required: true
         description: "Git Branch"
         options:
-          - develop
+          - main
       DeployToXMCloud:
         description: "Deploy to XM Cloud"
         type: boolean
