@@ -1,6 +1,5 @@
 name: deploy
 # **What it does**: On git push to release branch, it deploys release branch code to QA environment both for Sitecore CMS and Vercel.
-
 on:
   push:
     branches:
