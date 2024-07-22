@@ -46,11 +46,15 @@ jobs:
           DeploytoFirstalert='false'
           DeploytoProstore='false'
 
+          while IFS= read -r file
+          do
+            echo "$file"
+          done < files.txt
+
           echo "========XMCLOUD file check=========="
           
           while IFS= read -r file
           do
-            echo "$file"
             IFS=';' read -r -a cmspaths_array <<< "$cmspaths"
             for path in "${cmspaths_array[@]}"; do
               if [[ "$file" == $path/* || "$file" == $path  ]]; then
