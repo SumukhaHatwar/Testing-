@@ -1,0 +1,74 @@
+name: deploy
+# **What it does**: On git push to release branch, it deploys release branch code to QA environment both for Sitecore CMS and Vercel.
+
+on:
+  push:
+    branches:
+      - develop
+    paths-ignore:
+      - '.github/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  Echo:
+    name: Basic echo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.GitBranch }}
+          fetch-depth: 0
+
+      - name: "Get Current Date"
+        id: today
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Use Date Output
+        run: echo "The current date is ${{ steps.today.outputs.date }}"
+
+      - name: Define Paths Array
+        id: define_paths
+        run: |
+          echo "cmspaths=src/items:src/platform:./Readme.md:FolderA" >> $GITHUB_ENV
+          echo "firstalertpaths=src/items:src/platform:./Readme.md:FolderB" >> $GITHUB_ENV
+
+      - name: Check Modified Files for CMS
+        id: check_files_cms
+        run: |
+          echo "=============== list modified files ==============="
+          git diff --name-only HEAD^ HEAD > files.txt
+          Deploytocms='false'
+          DeploytoFirstalert='false'
+          while IFS= read -r file
+          do
+            echo "$file"
+            IFS=':' read -r -a cmspaths_array <<< "$cmspaths"
+            for path in "${cmspaths_array[@]}"; do
+              if [[ "$file" == $path/* || "$file" == $path ]]; then
+                Deploytocms='true'
+                break
+              fi
+            done
+          done < files.txt
+          echo "Deploytocms=$Deploytocms" >> $GITHUB_ENV
+          while IFS= read -r file
+          do
+            echo "$file"
+            IFS=':' read -r -a firstalertpaths_array <<< "$firstalertpaths"
+            for path in "${firstalertpaths_array[@]}"; do
+              if [[ "$file" == $path/* || "$file" == $path ]]; then
+                DeploytoFirstalert='true'
+                break
+              fi
+            done
+          done < files.txt
+          echo "DeploytoFirstalert=$DeploytoFirstalert" >> $GITHUB_ENV
+
+      - name: Output Deployment Decision
+        run: |
+          echo "Deploytocms = ${{ env.Deploytocms }}"
+          echo "DeploytoFirstalert = ${{ env.DeploytoFirstalert }}"
