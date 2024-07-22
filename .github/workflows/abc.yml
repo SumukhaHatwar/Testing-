@@ -36,7 +36,7 @@ jobs:
           echo "cmspaths=src/items:src/platform:./Readme.md:FolderA" >> $GITHUB_ENV
           echo "firstalertpaths=src/items:src/platform:./Readme.md:FolderB" >> $GITHUB_ENV
 
-      - name: Check Modified Files for CMS
+      - name: Check Modified Files
         id: check_files_cms
         run: |
           echo "=============== list modified files ==============="
@@ -57,7 +57,6 @@ jobs:
           echo "Deploytocms=$Deploytocms" >> $GITHUB_ENV
           while IFS= read -r file
           do
-            echo "$file"
             IFS=':' read -r -a firstalertpaths_array <<< "$firstalertpaths"
             for path in "${firstalertpaths_array[@]}"; do
               if [[ "$file" == $path/* || "$file" == $path ]]; then
